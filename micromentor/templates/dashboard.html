@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - MicroMentor</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        .navbar-custom {
+            background-color: #1a73e8;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .val {
+            font-size: 24px;
+            font-weight: bold;
+            color: #202124;
+        }
+
+        .border-blue { border-top: 4px solid #1a73e8; }
+        .border-gray { border-top: 4px solid #5f6368; }
+        .border-green { border-top: 4px solid #0f9d58; }
+        .border-yellow { border-top: 4px solid #fbbc04; }
+
+        .badge-status {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .badge-accepted {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .badge-pending {
+            background: #fef7e0;
+            color: #b06000;
+        }
+
+        .badge-rejected {
+            background: #fce8e6;
+            color: #c5221f;
+        }
+
+        .badge-cancelled {
+            background: #f1f3f4;
+            color: #5f6368;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand navbar-dark navbar-custom px-3">
+        <a class="navbar-brand fw-bold" href="/dashboard/">MicroMentor</a>
+        <div class="navbar-nav ms-auto align-items-center gap-2">
+            <a class="nav-link text-white" href="/mentor/mentors/">Find Mentors</a>
+            <a class="nav-link text-white" href="/mentor/my-bookings/">My Bookings</a>
+            <span class="text-white small ms-2">Student: <strong>{{ request.user.username }}</strong></span>
+            <a class="btn btn-sm btn-danger ms-2" href="/logout/">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- WELCOME BANNER -->
+        <div class="card p-3 mb-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h1 class="h4 mb-1 fw-bold">Welcome back, {{ request.user.username }}! 👋</h1>
+                    <p class="text-muted small mb-0">Role-Based Student Dashboard • Browse mentors and manage your active bookings</p>
+                </div>
+                <a href="/mentor/mentors/" class="btn btn-primary btn-sm">+ Find a Mentor</a>
+            </div>
+        </div>
+
+        <!-- STATS ROW -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card border-blue shadow-sm">
+                    <h3>Available Mentors</h3>
+                    <div class="val">{{ total_mentors }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card border-gray shadow-sm">
+                    <h3>Total Bookings</h3>
+                    <div class="val">{{ total_bookings }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card border-green shadow-sm">
+                    <h3>Confirmed</h3>
+                    <div class="val">{{ accepted_bookings }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card border-yellow shadow-sm">
+                    <h3>Pending</h3>
+                    <div class="val">{{ pending_bookings }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT ROW -->
+        <div class="row g-3">
+            
+            <!-- RECENT BOOKINGS TABLE -->
+            <div class="col-lg-7">
+                <div class="card p-3 shadow-sm h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h6 fw-bold mb-0">Recent Bookings</h2>
+                        <a href="/mentor/my-bookings/" class="small text-decoration-none fw-semibold">View All →</a>
+                    </div>
+
+                    {% if recent_bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle small mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mentor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in recent_bookings %}
+                                <tr>
+                                    <td class="fw-bold">{{ b.mentor.user.username }}</td>
+                                    <td>{{ b.date }}</td>
+                                    <td>{{ b.time|default:"-" }}</td>
+                                    <td>
+                                        {% if b.status == "accepted" %}
+                                            <span class="badge-status badge-accepted">Confirmed</span>
+                                        {% elif b.status == "rejected" %}
+                                            <span class="badge-status badge-rejected">Rejected</span>
+                                        {% elif b.status == "cancelled" %}
+                                            <span class="badge-status badge-cancelled">Cancelled</span>
+                                        {% else %}
+                                            <span class="badge-status badge-pending">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4 small">
+                        <p class="mb-2">No booked sessions yet.</p>
+                        <a href="/mentor/mentors/" class="btn btn-outline-primary btn-sm">Browse Mentors</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- FEATURED MENTORS PREVIEW -->
+            <div class="col-lg-5">
+                <div class="card p-3 shadow-sm h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h6 fw-bold mb-0">Featured Mentors</h2>
+                        <a href="/mentor/mentors/" class="small text-decoration-none fw-semibold">Browse All →</a>
+                    </div>
+
+                    {% if available_mentors %}
+                    <div class="list-group list-group-flush">
+                        {% for m in available_mentors %}
+                        <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold small">{{ m.user.username }}</div>
+                                <div class="text-muted" style="font-size: 11px;">🎯 {{ m.skill }} • {{ m.experience }} yrs exp</div>
+                            </div>
+                            <a href="/mentor/book/{{ m.id }}/" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 12px;">Book</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4 small">
+                        No mentors available currently.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

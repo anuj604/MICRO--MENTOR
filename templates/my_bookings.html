@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - MicroMentor</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        .navbar-custom {
+            background-color: #1a73e8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .booking-card {
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 22px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            margin-bottom: 18px;
+        }
+
+        .mentor-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #202124;
+            margin-bottom: 4px;
+        }
+
+        .booking-meta {
+            font-size: 13px;
+            color: #555;
+            margin: 3px 0;
+        }
+
+        .badge-status {
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .badge-accepted {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .badge-pending {
+            background: #fef7e0;
+            color: #b06000;
+        }
+
+        .badge-rejected {
+            background: #fce8e6;
+            color: #c5221f;
+        }
+
+        .badge-cancelled {
+            background: #f1f3f4;
+            color: #5f6368;
+        }
+
+        .meeting-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-top: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand navbar-dark navbar-custom px-3">
+        <a class="navbar-brand fw-bold" href="/dashboard/">MicroMentor</a>
+        <div class="navbar-nav ms-auto align-items-center gap-2">
+            <a class="nav-link text-white" href="/dashboard/">Dashboard</a>
+            <a class="nav-link text-white" href="/mentor/mentors/">Find Mentors</a>
+            <a class="btn btn-sm btn-danger ms-2" href="/logout/">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- MESSAGES -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show py-2 px-3 small" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="h4 mb-0 fw-bold">My Bookings</h1>
+                <small class="text-muted">Track your session requests and join your confirmed video meetings</small>
+            </div>
+            <a href="/mentor/mentors/" class="btn btn-primary btn-sm">+ Book New Session</a>
+        </div>
+
+        {% if bookings %}
+            {% for b in bookings %}
+            <div class="booking-card">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                    <div>
+                        <div class="mentor-title">Mentor: {{ b.mentor.user.username }}</div>
+                        <div class="booking-meta">🎯 <strong>Skill:</strong> {{ b.mentor.skill }}</div>
+                        <div class="booking-meta">📅 <strong>Scheduled Date:</strong> {{ b.date }} &nbsp;|&nbsp; ⏰ <strong>Time:</strong> {{ b.time|default:"Not specified" }}</div>
+                    </div>
+
+                    <div>
+                        {% if b.status == "accepted" %}
+                            <span class="badge-status badge-accepted">Confirmed</span>
+                        {% elif b.status == "rejected" %}
+                            <span class="badge-status badge-rejected">Rejected</span>
+                        {% elif b.status == "cancelled" %}
+                            <span class="badge-status badge-cancelled">Cancelled</span>
+                        {% else %}
+                            <span class="badge-status badge-pending">Pending Approval</span>
+                            <a href="/mentor/cancel/{{ b.id }}/" class="btn btn-sm btn-outline-danger ms-2" onclick="return confirm('Are you sure you want to cancel this booking request?');">Cancel</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 🎥 MEETING LINK (SHOWN WHEN ACCEPTED) -->
+                {% if b.status == "accepted" %}
+                <div class="meeting-box">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <strong class="text-success">🎥 Video Meeting Room Ready</strong>
+                            <div class="text-muted small">Your session is confirmed. Click below to join the video call room.</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="https://meet.jit.si/MicroMentor-Session-{{ b.id }}-{{ b.mentor.user.username }}" target="_blank" class="btn btn-sm btn-success fw-bold">
+                                📹 Join Video Meeting ↗
+                            </a>
+                            <a href="https://meet.google.com/new" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                Google Meet ↗
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if b.mentor.phone %}
+                    <div class="mt-2 text-muted small" style="font-size: 12px;">
+                        📞 <strong>Mentor Contact:</strong> {{ b.mentor.phone }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card p-5 text-center text-muted">
+                <p class="mb-2">You don't have any booked sessions yet.</p>
+                <div>
+                    <a href="/mentor/mentors/" class="btn btn-primary btn-sm">Find an Expert Mentor</a>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>

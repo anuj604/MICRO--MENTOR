@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Mentors - MicroMentor</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        .navbar-custom {
+            background-color: #1a73e8;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .mentor-card {
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .badge-skill {
+            background: #e8f0fe;
+            color: #1a73e8;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand navbar-dark navbar-custom px-3">
+        <a class="navbar-brand fw-bold" href="/dashboard/">MicroMentor</a>
+        <div class="navbar-nav ms-auto align-items-center gap-2">
+            <a class="nav-link text-white" href="/dashboard/">Dashboard</a>
+            <a class="nav-link text-white" href="/mentor/my-bookings/">My Bookings</a>
+            <a class="btn btn-sm btn-danger ms-2" href="/logout/">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- SEARCH & HEADER -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <div>
+                <h1 class="h4 mb-0 fw-bold">Available Mentors</h1>
+                <small class="text-muted">Search mentors by name, primary skill, or expertise</small>
+            </div>
+
+            <form method="GET" class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm" name="q" placeholder="Search by skill, name..." value="{{ request.GET.q }}">
+                <button type="submit" class="btn btn-primary btn-sm px-3">Search</button>
+                {% if request.GET.q %}
+                <a href="/mentor/mentors/" class="btn btn-outline-secondary btn-sm">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- MENTORS GRID -->
+        <div class="row g-3">
+            {% for mentor in mentors %}
+            <div class="col-md-6 col-lg-4">
+                <div class="mentor-card">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h2 class="h5 fw-bold mb-0 text-dark">{{ mentor.user.username }}</h2>
+                            {% if mentor.is_available %}
+                                <span class="badge bg-success" style="font-size: 10px;">Available</span>
+                            {% else %}
+                                <span class="badge bg-secondary" style="font-size: 10px;">Paused</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="badge-skill">🎯 {{ mentor.skill }}</div>
+
+                        <p class="small text-muted mb-2">
+                            💼 <strong>Experience:</strong> {{ mentor.experience }} years
+                        </p>
+
+                        {% if mentor.expertise %}
+                        <p class="small text-secondary mb-3" style="line-height: 1.4;">
+                            {{ mentor.expertise }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        {% if mentor.is_available %}
+                            <a href="/mentor/book/{{ mentor.id }}/" class="btn btn-primary btn-sm w-100">Book Session</a>
+                        {% else %}
+                            <button class="btn btn-secondary btn-sm w-100" disabled>Currently Unavailable</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card p-5 text-center text-muted">
+                    <p class="mb-2">No mentors found matching your search.</p>
+                    <div>
+                        <a href="/mentor/mentors/" class="btn btn-outline-primary btn-sm">View All Mentors</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mentors</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            font-size: 22px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            font-weight: 500;
+        }
+
+        /* SEARCH BAR */
+        .search-box {
+            text-align: center;
+            margin: 20px;
+        }
+
+        .search-box input {
+            width: 300px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        /* GRID */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* CARD */
+        .card {
+            width: 250px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        /* BUTTON */
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            border-radius: 6px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>MicroMentor</h2>
+    <div>
+        <a href="/dashboard/">Dashboard</a>
+        <a href="/my-bookings/">My Bookings</a>
+        <a href="/logout/">Logout</a>
+    </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-box">
+    <input type="text" placeholder="Search mentors...">
+</div>
+
+<!-- MENTORS -->
+<div class="container">
+{% for m in mentors %}
+    <div class="card">
+        <h3>{{ m.user.username }}</h3>
+        <p><b>Expertise:</b> {{ m.expertise }}</p>
+        <p><b>Experience:</b> {{ m.experience }} years</p>
+
+        <a href="/book/{{ m.id }}/" class="btn">Book Now</a>
+    </div>
+{% endfor %}
+</div>
+
+</body>
+</html>
